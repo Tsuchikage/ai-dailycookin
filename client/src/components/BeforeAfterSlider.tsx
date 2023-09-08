@@ -1,18 +1,18 @@
-import React, { useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import {
+	Badge,
 	Button,
 	LoadingOverlay,
 	Paper,
 	Skeleton,
+	Text,
 	createStyles
 } from '@mantine/core'
 import html2canvas from 'html2canvas' // Import html2canvas library
+import { useAppSelector } from '@/redux/hooks'
 
 interface Props {
-	before: string | null
-	after: string | null
 	isLoading?: boolean
-	backgroundColor: string
 }
 
 const useStyles = createStyles(theme => ({
@@ -35,7 +35,8 @@ const useStyles = createStyles(theme => ({
 	img: {
 		width: '100%',
 		height: '100%',
-		position: 'absolute'
+		position: 'absolute',
+		objectFit: 'contain'
 	},
 	divider: {
 		position: 'absolute',
@@ -55,20 +56,24 @@ const useStyles = createStyles(theme => ({
 
 		'&:hover': {
 			backgroundColor: 'inherit',
-			color: 'var(--ya-primary-text)',
+			color: 'var(--ya-primary-text)'
 		}
 	}
 }))
 
-const BeforeAfterSlider = ({
-	before,
-	after,
-	isLoading = false,
-	backgroundColor
-}: Props) => {
+function getRandomColor() {
+	const COLORS = ['green', 'blue', 'cyan', 'grape', 'indigo', 'pink', 'teal']
+
+	const randomIndex = Math.floor(Math.random() * COLORS.length)
+	return COLORS[randomIndex]
+}
+
+const BeforeAfterSlider = ({ isLoading = false }: Props) => {
 	const { classes } = useStyles()
 	const [position, setPosition] = useState<number>(50)
 	const imgRef = useRef<HTMLImageElement | null>(null)
+
+	const st = useAppSelector(state => state.slice)
 
 	const handleMouseMove = (
 		e: React.MouseEvent<HTMLDivElement, MouseEvent>
@@ -84,7 +89,7 @@ const BeforeAfterSlider = ({
 	}
 
 	const captureScreenshot = () => {
-		if (!after || !imgRef.current) return
+		if (!st.after || !imgRef.current) return
 
 		html2canvas(imgRef.current).then(canvas => {
 			const screenshotDataUrl = canvas.toDataURL('image/png')
@@ -99,14 +104,14 @@ const BeforeAfterSlider = ({
 		<>
 			<Paper withBorder radius="md" className={classes.root}>
 				<LoadingOverlay visible={isLoading} overlayBlur={2} />
-				{before ? (
+				{st.before ? (
 					<>
 						<div
 							className={classes.slider}
 							onMouseMove={handleMouseMove}
 						>
 							<img
-								src={before}
+								src={st.before}
 								alt="Before"
 								style={{
 									clipPath: `inset(0 ${100 - position}% 0 0)`
@@ -114,14 +119,14 @@ const BeforeAfterSlider = ({
 								className={classes.img}
 								draggable={false}
 							/>
-							{after && (
+							{st.after && (
 								<img
-									src={after}
+									src={`data:image/png;base64,${st.after}`}
 									ref={imgRef}
 									alt="After"
 									style={{
 										clipPath: `inset(0 0 0 ${position}%)`,
-										backgroundColor
+										backgroundColor: st.background
 									}}
 									className={classes.img}
 									draggable={false}
@@ -131,14 +136,16 @@ const BeforeAfterSlider = ({
 								className={classes.divider}
 								style={{ left: `${position}%` }}
 							/>
-							{after && <Button
-								className={classes.button}
-								onClick={captureScreenshot}
-								variant='subtle'
-								uppercase
-							>
-								Скачать
-							</Button>}
+							{st.after && (
+								<Button
+									className={classes.button}
+									onClick={captureScreenshot}
+									variant="subtle"
+									uppercase
+								>
+									Скачать
+								</Button>
+							)}
 						</div>
 						<input
 							type="range"
@@ -153,6 +160,20 @@ const BeforeAfterSlider = ({
 					<Skeleton height="100%" width="100%" animate={false} />
 				)}
 			</Paper>
+			{st.after && (
+				<div className="col" style={{ gap: 8 }}>
+					{st.description && <Text>{st.description}</Text>}
+					{st.tags && (
+						<div className="row" style={{ gap: 8 }}>
+							{st.tags.map((tag, i) => (
+								<Badge key={i} color={getRandomColor()}>
+									{tag}
+								</Badge>
+							))}
+						</div>
+					)}
+				</div>
+			)}
 		</>
 	)
 }

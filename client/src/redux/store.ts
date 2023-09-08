@@ -1,15 +1,16 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit'
 import { api } from './api'
+import sliceReducer from './slice'
 
 const reducers = combineReducers({
-	[api.reducerPath]: api.reducer
+	[api.reducerPath]: api.reducer,
+	slice: sliceReducer
 })
 
 export const store = configureStore({
 	reducer: reducers,
 	middleware: getDefaultMiddleware =>
 		getDefaultMiddleware().concat(api.middleware)
-	// devTools: process.env.NODE_ENV !== 'production',
 })
 
 export type RootState = ReturnType<typeof store.getState>

@@ -1,5 +1,13 @@
 import BeforeAfterSlider from '@/components/BeforeAfterSlider'
 import { useUploadMutation } from '@/redux/api'
+import { useAppDispatch, useAppSelector } from '@/redux/hooks'
+import {
+	setAfter,
+	setBackground,
+	setBefore,
+	setDescription,
+	setTags
+} from '@/redux/slice'
 import { faker } from '@faker-js/faker'
 import {
 	Button,
@@ -25,6 +33,7 @@ const useStyles = createStyles(theme => ({
 	button: {
 		backgroundColor: 'var(--ya-yellow)',
 		color: 'var(--ya-primary-text)',
+		flex: 1,
 
 		'&:hover': {
 			backgroundColor: 'var(--ya-yellow-hover)'
@@ -47,32 +56,47 @@ const useStyles = createStyles(theme => ({
 	text: { color: 'var(--ya-primary-text)', lineHeight: '20px' }
 }))
 
+const COLORS = [
+	'#25262b',
+	'#868e96',
+	'#fa5252',
+	'#e64980',
+	'#be4bdb',
+	'#7950f2',
+	'#4c6ef5',
+	'#228be6',
+	'#15aabf',
+	'#12b886',
+	'#40c057',
+	'#82c91e',
+	'#fab005',
+	'#fd7e14'
+]
+
 export default function Home() {
 	const { classes } = useStyles()
+	const st = useAppSelector(state => state.slice)
+	const dispatch = useAppDispatch()
+
 	const [file, setFile] = useState<File | null>(null)
-
-	const [beforeImgUrl, setBeforeImgUrl] = useState<string | null>(null)
-	const [afterImgUrl, setAfterImgUrl] = useState<string | null>(null)
-
-	// const [isLoading, setIsLoading] = useState(false)
-
-	const [backgroundColor, setBackgroundColor] = useState<string>('#FFFFFF')
 
 	const productName = useMemo(() => faker.commerce.productName(), [])
 
 	const handleFileChange = (f: File) => {
 		if (f) {
+			dispatch(setAfter(null))
+
 			const reader = new FileReader()
 
 			reader.onloadend = () => {
 				setFile(f)
-				setBeforeImgUrl(reader.result as string)
+				dispatch(setBefore(reader.result as string))
 			}
 
 			reader.readAsDataURL(f)
 		} else {
 			setFile(null)
-			setBeforeImgUrl(null)
+			dispatch(setBefore(null))
 		}
 	}
 
@@ -80,7 +104,7 @@ export default function Home() {
 
 	const handleSubmit = () => {
 		if (!file) return
-		setAfterImgUrl(null)
+		dispatch(setAfter(null))
 
 		const formData = new FormData()
 		formData.set('image', file)
@@ -88,7 +112,10 @@ export default function Home() {
 		upload(formData)
 			.then(res => {
 				// @ts-ignore
-				setAfterImgUrl(res.data.base64_image)
+				const { base64_image, description, tags } = res.data
+				dispatch(setAfter(base64_image))
+				dispatch(setDescription(description))
+				dispatch(setTags(tags))
 			})
 			.catch(console.log)
 	}
@@ -110,6 +137,7 @@ export default function Home() {
 					<FileButton
 						onChange={handleFileChange}
 						accept="image/png,image/jpeg"
+						disabled={isLoading}
 					>
 						{props => (
 							<Button {...props} className={classes.add}>
@@ -119,27 +147,12 @@ export default function Home() {
 					</FileButton>
 					<ColorInput
 						placeholder="Цвет фона"
-						onChange={setBackgroundColor}
-						value={backgroundColor}
+						onChange={color => dispatch(setBackground(color))}
+						value={st.background}
 						withEyeDropper
 						swatchesPerRow={7}
-						swatches={[
-							'#25262b',
-							'#868e96',
-							'#fa5252',
-							'#e64980',
-							'#be4bdb',
-							'#7950f2',
-							'#4c6ef5',
-							'#228be6',
-							'#15aabf',
-							'#12b886',
-							'#40c057',
-							'#82c91e',
-							'#fab005',
-							'#fd7e14'
-						]}
-						disabled={!file}
+						swatches={COLORS}
+						disabled={isLoading}
 					/>
 					<Button
 						className={classes.button}
@@ -151,14 +164,7 @@ export default function Home() {
 				</SimpleGrid>
 			</Paper>
 
-			<BeforeAfterSlider
-				before={beforeImgUrl}
-				after={afterImgUrl && `data:image/png;base64,${afterImgUrl}`}
-				// before="/before.jpg"
-				// after="/after.png"
-				backgroundColor={backgroundColor}
-				isLoading={isLoading}
-			/>
+			<BeforeAfterSlider isLoading={isLoading} />
 		</div>
 	)
 }
