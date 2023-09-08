@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+    client:
+        container_name: client
+        build:
+            context: ./client
+            dockerfile: Dockerfile
+        ports:
+            - '3000:${CLIENT_PORT:-3000}'
+    server:
+        container_name: server
+        build:
+            context: ./server
+            dockerfile: Dockerfile
+        restart: on-failure
+        command: uvicorn app:app --host 0.0.0.0 --port ${SERVER_PORT:-8000}
+        ports:
+            - '8000:${SERVER_PORT:-8000}'
+    nginx:
+        build:
+            context: ./nginx
+            dockerfile: Dockerfile
+        ports:
+            - '80:80'
+            - '443:443'
+        depends_on:
+            # - client
+            - server
+        environment:
+            CLIENT_PORT: ${CLIENT_PORT:-3000}
+            SERVER_PORT: ${SERVER_PORT:-8000}
