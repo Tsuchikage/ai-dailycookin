@@ -31,6 +31,13 @@ Web page can be found at `0.0.0.0`
 
 Backend swagger docs: `0.0.0.0/api/docs`
 
+
+## Deploy
+```bash
+cp .env.example .env
+docker-compose up --build -d
+```
+
 ## Web Demo
 
 [46.174.52.127](http://46.174.52.127/)
