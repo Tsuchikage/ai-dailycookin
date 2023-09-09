@@ -3,7 +3,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from routers import image_router
 
-app = FastAPI()
+app = FastAPI(title="ITMO AI HACK BACKEND", docs_url="/api/docs")
 
 app.add_middleware(
     CORSMiddleware,

@@ -1,9 +1,11 @@
 from fastapi import APIRouter, File, Form, UploadFile, HTTPException
 from typing_extensions import Annotated
 
+from services.image.description import ImageDescriptionFetcher
 from services.image.encoding import base64_encode_image
 
 from services.image.processing import ImageProcessing
+from services.image.tags import TagsFetcher
 
 router = APIRouter(prefix="/images")
 
@@ -20,4 +22,11 @@ async def post_process_image(
 
     image_bytes = base64_encode_image(image=new_file)
 
-    return {"base64_image": image_bytes, "some_param": "123"}
+    tags_fetcher = TagsFetcher(image_bytes=image_bytes)
+    tags = await tags_fetcher.get_tags()
+    print(f"{tags=}")
+
+    description_fetcher = ImageDescriptionFetcher(tags=tags)
+    description = await description_fetcher.get_description()
+
+    return {"base64_image": image_bytes, "tags": tags, "description": description}

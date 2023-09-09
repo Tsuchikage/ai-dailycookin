@@ -4,12 +4,33 @@ An App for processing product content that solves the tasks of improving the qua
 
 
 ## Run
+
+### Ensure `.env`
 ```bash
 cp .env.example .env
-docker-compose up --build -d
+```
+Add proper `OPENAI_API_KEY` and `GOOGLE_VISION_API_KEY` envs to `.env`
+
+### Build
+```bash
+make build
+```
+
+### Run
+```bash
+make run
+```
+
+### Dev build and run
+```bash
+make dev_up
 ```
 
 
-## Demo
+Web page can be found at `0.0.0.0`
+
+Backend swagger docs: `0.0.0.0/api/docs`
+
+## Web Demo
 
 [46.174.52.127](http://46.174.52.127/)
