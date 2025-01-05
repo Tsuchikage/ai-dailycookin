@@ -1,43 +1,46 @@
-# About
+# О проекте
 
-An App for processing product content that solves the tasks of improving the quality of product photos (removing photo infographics, applying a specific background to photos).
+Приложение для обработки контента продуктов, предназначенное для решения задач по улучшению качества фотографий продуктов (удаление инфографики с фото, применение определенного фона к фотографиям).
 
+---
 
-## Run
+## Запуск
 
-### Ensure `.env`
+### Убедитесь, что файл `.env` настроен
 ```bash
 cp .env.example .env
 ```
-Add proper `OPENAI_API_KEY` and `GOOGLE_VISION_API_KEY` envs to `.env`
+Добавьте соответствующие переменные окружения `OPENAI_API_KEY` и `GOOGLE_VISION_API_KEY` в `.env`.
 
-### Build
+### Сборка
 ```bash
 make build
 ```
 
-### Run
+### Запуск
 ```bash
 make run
 ```
 
-### Dev build and run
+### Сборка и запуск в режиме разработки
 ```bash
 make dev_up
 ```
 
+Веб-страница доступна по адресу `0.0.0.0`.
 
-Web page can be found at `0.0.0.0`
+Документация Swagger для бэкенда доступна по адресу: `0.0.0.0/api/docs`.
 
-Backend swagger docs: `0.0.0.0/api/docs`
+---
 
-
-## Deploy
+## Развёртывание
 ```bash
 cp .env.example .env
 docker-compose up --build -d
 ```
 
-## Web Demo
+---
+
+## Веб-демо
 
 [46.174.52.127](http://46.174.52.127/)
